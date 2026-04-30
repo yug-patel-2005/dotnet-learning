@@ -11,4 +11,6 @@ public interface IUserRepository
     Task<User> DeleteUser(int id);
     Task<IEnumerable<User>> GetAllUser();
     Task<bool> EmailExistsAsync(string email);
+    // Inside IUserRepository.cs
+    Task AssignRoleAsync(int userId, int roleId);
 }

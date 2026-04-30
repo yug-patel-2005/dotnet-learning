@@ -85,6 +85,22 @@
   },
   {
     "ContainingType": "CRUDproject.Controllers.JobController.JobsController",
+    "Method": "GetByDate",
+    "RelativePath": "api/job/GetByDate",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "date",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.JobController.JobsController",
     "Method": "Get",
     "RelativePath": "api/job/GetById/{id}",
     "HttpMethod": "GET",
@@ -194,6 +210,64 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.UserRole.UserRoleController",
+    "Method": "GetAllUserRoles",
+    "RelativePath": "api/UserRole",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.UserRole.UserRoleController",
+    "Method": "GetUserRoles",
+    "RelativePath": "api/UserRole/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.UserRole.UserRoleController",
+    "Method": "AssignRole",
+    "RelativePath": "api/UserRole/assign",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "CRUDproject.Dtos.UserRoleDto.AssignRoleDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.UserRole.UserRoleController",
+    "Method": "RemoveRole",
+    "RelativePath": "api/UserRole/remove",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "CRUDproject.Dtos.UserRoleDto.AssignRoleDto",
         "IsRequired": true
       }
     ],

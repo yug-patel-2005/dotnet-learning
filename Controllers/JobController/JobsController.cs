@@ -1,8 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using CRUDproject.Dtos.JobDto;
-using System.Security.Claims;
+using CRUDproject.Models.AuthUser;
 using CRUDproject.Services.JobService.Interface;
+using CRUDproject.Enums;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using CRUDproject.Constants;
 
 namespace CRUDproject.Controllers.JobController
 {
@@ -20,6 +23,7 @@ namespace CRUDproject.Controllers.JobController
             _logger = logger;
         }
 
+     
         private int GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -28,20 +32,50 @@ namespace CRUDproject.Controllers.JobController
                 : 0;
         }
 
+      
+        private int GetUserRoleId()
+        {
+          
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            return int.TryParse(roleClaim, out var roleId) ? roleId : 0;
+        }
+
         [HttpGet("GetAllUser")]
         public async Task<IActionResult> GetAll()
         {
             try
             {
-                var userId = GetCurrentUserId(); // Get ID from Token
+                var userId = GetCurrentUserId();
+                var roleId = GetUserRoleId(); 
 
-                // PASS userId to the service
-                var items = await _service.GetAllAsync(userId);
+                var items = await _service.GetAllAsync(userId, roleId);
                 return Ok(items);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error in GetAll");
                 return StatusCode(500, "An error occurred");
+            }
+        }
+
+   
+        [HttpGet("GetByDate")]
+        public async Task<IActionResult> GetByDate([FromQuery] DateTime date)
+        {
+            try
+            {
+          
+                var jobs = await _service.GetJobsByDateAsync(date);
+
+                if (jobs == null || !jobs.Any())
+                    return NotFound($"No jobs scheduled for {date.ToShortDateString()}");
+
+                return Ok(jobs);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching public jobs by date");
+                return StatusCode(500, "Internal server error");
             }
         }
 
@@ -51,9 +85,9 @@ namespace CRUDproject.Controllers.JobController
             try
             {
                 var userId = GetCurrentUserId();
+                var roleId = GetUserRoleId();
 
-                // PASS userId so user only sees THEIR job
-                var item = await _service.GetByIdAsync(id, userId);
+                var item = await _service.GetByIdAsync(id, userId, roleId);
                 if (item is null) return NotFound("Job not found or access denied.");
 
                 return Ok(item);
@@ -61,16 +95,14 @@ namespace CRUDproject.Controllers.JobController
             catch (Exception) { return StatusCode(500, "Error"); }
         }
 
+        [Authorize(Roles = RoleNames.Admin)] 
         [HttpPost("Create")]
-        // NOTE: Removed [AllowAnonymous] because you need a token to know WHO is creating the job
         public async Task<IActionResult> Create([FromBody] JobDto dto)
         {
             try
             {
-                var userId = GetCurrentUserId();
-
-                // PASS userId so the job gets "Stamped" with the owner
-                var created = await _service.CreateAsync(dto, userId);
+                var adminId = GetCurrentUserId();
+                var created = await _service.CreateAsync(dto, adminId);
 
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
@@ -83,10 +115,10 @@ namespace CRUDproject.Controllers.JobController
             try
             {
                 var userId = GetCurrentUserId();
+                var roleId = GetUserRoleId();
 
-                // PASS userId to ensure only the owner can update
-                var updated = await _service.UpdateAsync(id, dto, userId);
-                if (updated is null) return NotFound("Update failed: Job not found or unauthorized.");
+                var updated = await _service.UpdateAsync(id, dto, userId, roleId);
+                if (updated is null) return NotFound("Update failed: Unauthorized or Not Found.");
 
                 return Ok(updated);
             }
@@ -99,16 +131,14 @@ namespace CRUDproject.Controllers.JobController
             try
             {
                 var userId = GetCurrentUserId();
+                var roleId = GetUserRoleId();
 
-                // PASS userId to ensure only the owner can delete
-                var deleted = await _service.DeleteAsync(id, userId);
-                if (deleted is null) return NotFound("Delete failed: Job not found or unauthorized.");
+                var deleted = await _service.DeleteAsync(id, userId, roleId);
+                if (deleted is null) return Forbid("Only administrators can delete jobs.");
 
                 return NoContent();
             }
             catch (Exception) { return StatusCode(500, "Error"); }
         }
-    
-
     }
 }

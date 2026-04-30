@@ -17,5 +17,7 @@ namespace CRUDproject.Dtos.JobDto
         public string? Status { get; set; }
 
         public int CreatedBy { get; set; }
+
+        public int UserId { get; set; }
     }
 }

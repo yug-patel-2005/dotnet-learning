@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CRUDproject.Models.AuthUser;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CRUDproject.Models
@@ -20,8 +21,13 @@ namespace CRUDproject.Models
         public string? SaleType { get; set; }
         public int? ShootId { get; set; }
         public string? Status { get; set; }
-        public int? CreatedBy { get; set; } 
+        public int? CreatedBy { get; set; }
 
-    
+        public int? UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        public User? User { get; set; }
+
+
     }
 }

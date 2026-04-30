@@ -19,25 +19,35 @@ public class JwtService : IJwtService
     public string GenerateToken(User user)
     {
         var secretKey = _config["JwtSettings:SecretKey"]!;
-        var issuer    = _config["JwtSettings:Issuer"]!;
-        var audience  = _config["JwtSettings:Audience"]!;
-        var expiry    = int.Parse(_config["JwtSettings:ExpiryInMinutes"]!);
+        var issuer = _config["JwtSettings:Issuer"]!;
+        var audience = _config["JwtSettings:Audience"]!;
+        var expiry = int.Parse(_config["JwtSettings:ExpiryInMinutes"]!);
 
-        var key   = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Name, user.Name)
+    };
+
+  
+        if (user.UserRoles != null)
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.Name)
-        };
+            foreach (var userRole in user.UserRoles)
+            {
+            
+                claims.Add(new Claim(ClaimTypes.Role, userRole.RoleId.ToString()));
+            }
+        }
 
         var token = new JwtSecurityToken(
-            issuer:             issuer,
-            audience:           audience,
-            claims:             claims,
-            expires:            DateTime.UtcNow.AddMinutes(expiry),
+            issuer: issuer,
+            audience: audience,
+            claims: claims, 
+            expires: DateTime.UtcNow.AddMinutes(expiry),
             signingCredentials: creds
         );
 

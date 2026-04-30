@@ -31,6 +31,8 @@ public class AuthService : IAuthService
         };
 
         var created = await _userRepository.CreateAsync(user);
+
+        await _userRepository.AssignRoleAsync(created.Id, 2);
         var token   = _jwtService.GenerateToken(created);
 
         return new AuthResponseDto
@@ -38,8 +40,8 @@ public class AuthService : IAuthService
            
             Id=created.Id,
             Token=token,
-            message="user aa gyo ho"
-           
+            message= "User registered and role assigned successfully."
+
         };
     }
 
@@ -55,8 +57,7 @@ public class AuthService : IAuthService
         return new AuthResponseDto
         {
             Token = token,
-           
-            
+            message = "Login successful."
         };
     }
 
@@ -86,5 +87,9 @@ public class AuthService : IAuthService
                 CreatedAt = user.CreatedAt
             }
         };
+
+
     }
+
+
 }

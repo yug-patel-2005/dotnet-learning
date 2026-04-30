@@ -160,4 +160,5 @@ C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\obj\Debug\net10.0\CRUDproj.7
 C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\obj\Debug\net10.0\CRUDproject.genruntimeconfig.cache
 C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\obj\Debug\net10.0\ref\CRUDproject.dll
 C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\obj\Debug\net10.0\CRUDproject.sourcelink.json
 C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
