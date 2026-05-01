@@ -9,8 +9,6 @@ namespace CRUDproject.Models
     {
         
         public int Id { get; set; }
-
-        
         public string? Division { get; set; }
         public int? SchoolId { get; set; }
         public int? PhotographerId { get; set; }

@@ -104,6 +104,14 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "isToday",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -357,7 +365,7 @@
         }
       }
     },
-    "/api/UserRole": {
+    "/api/UserRole/GetAllAssigned": {
       "get": {
         "tags": [
           "UserRole"
@@ -369,7 +377,7 @@
         }
       }
     },
-    "/api/UserRole/{userId}": {
+    "/api/UserRole/GetById{userId}": {
       "get": {
         "tags": [
           "UserRole"
@@ -473,7 +481,16 @@
       },
       "JobDto": {
         "required": [
-          "division"
+          "division",
+          "eventType",
+          "photographerId",
+          "saleType",
+          "schoolId",
+          "shootCategory",
+          "shootDate",
+          "shootId",
+          "status",
+          "userId"
         ],
         "type": "object",
         "properties": {
@@ -484,39 +501,35 @@
           },
           "schoolId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "photographerId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "shootDate": {
             "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "format": "date-time"
           },
           "eventType": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "shootCategory": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "saleType": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "shootId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "status": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "createdBy": {
             "type": "integer",

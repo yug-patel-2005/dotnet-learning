@@ -60,15 +60,16 @@ namespace CRUDproject.Controllers.JobController
 
    
         [HttpGet("GetByDate")]
-        public async Task<IActionResult> GetByDate([FromQuery] DateTime date)
+        public async Task<IActionResult> GetByDate([FromQuery] DateTime? date , [FromQuery] bool isToday = false)
         {
             try
             {
-          
-                var jobs = await _service.GetJobsByDateAsync(date);
+                DateTime searchDate = isToday ? DateTime.Today : (date ?? DateTime.Today);
+
+                var jobs = await _service.GetJobsByDateAsync(searchDate);
 
                 if (jobs == null || !jobs.Any())
-                    return NotFound($"No jobs scheduled for {date.ToShortDateString()}");
+                    return NotFound($"No jobs scheduled for {searchDate.ToShortDateString()}");
 
                 return Ok(jobs);
             }

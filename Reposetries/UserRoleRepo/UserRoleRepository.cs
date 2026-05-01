@@ -44,7 +44,7 @@ namespace CRUDproject.Reposetries.UserRoleRepo
             var existingRole = await _context.UserRoles
                 .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
             
-            if (existingRole != null) return true; // Already assigned
+            if (existingRole != null) return true; 
 
             _context.UserRoles.Add(new UserRole { UserId = userId, RoleId = roleId });
             await _context.SaveChangesAsync();
