@@ -1,6 +1,9 @@
-﻿using CRUDproject.Models;
+using CRUDproject.Enums;
+using CRUDproject.Models;
 using CRUDproject.Reposetries.JobRepository.Interface;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CRUDproject.Reposetries.JobRepository
 {
@@ -13,7 +16,7 @@ namespace CRUDproject.Reposetries.JobRepository
             _db = db;
         }
 
-        // CREATE: Just save as usual (Service will set the CreatedBy ID)
+       
         public async Task<JobEntity> CreateAsync(JobEntity job)
         {
             await _db.Jobs.AddAsync(job);
@@ -21,28 +24,37 @@ namespace CRUDproject.Reposetries.JobRepository
             return job;
         }
 
-        // READ: Only return jobs belonging to this specific user
-        public async Task<IEnumerable<JobEntity>> GetAllAsync(int userId)
+       
+        public async Task<IEnumerable<JobEntity>> GetAllAsync(int userId,int roleId)
         {
+            if (roleId == (int)UserRole.Admin) 
+            {
+                return await _db.Jobs.AsNoTracking().ToListAsync();
+            }
             return await _db.Jobs
-                .Where(j => j.CreatedBy == userId) // THE FILTER
-                .AsNoTracking()
-                .ToListAsync();
+                 .Where(j => j.UserId == userId)
+                 .AsNoTracking()
+                 .ToListAsync();
         }
 
-        // READ ONE: Ensure the job exists AND belongs to the user
-        public async Task<JobEntity?> GetByIdAsync(int id, int userId)
+       
+        public async Task<JobEntity?> GetByIdAsync(int id, int userId, int roleId)
         {
+
+            if (roleId == (int)UserRole.Admin)
+            {
+                return await _db.Jobs.FirstOrDefaultAsync(j => j.Id == id);
+            }
+
             return await _db.Jobs
-                .FirstOrDefaultAsync(j => j.Id == id && j.CreatedBy == userId);
+                  .FirstOrDefaultAsync(j => j.Id == id && j.UserId == userId);
         }
 
-        // UPDATE: Find by ID and Owner before allowing changes
-        public async Task<JobEntity?> UpdateAsync(JobEntity job, int userId)
+       
+        public async Task<JobEntity?> UpdateAsync(JobEntity job, int userId, int roleId)
         {
-            // Notice we check BOTH ID and CreatedBy
-            var existing = await _db.Jobs
-                .FirstOrDefaultAsync(j => j.Id == job.Id && j.CreatedBy == userId);
+            
+            var existing = await GetByIdAsync(job.Id, userId, roleId);
 
             if (existing == null) return null;
 
@@ -51,17 +63,42 @@ namespace CRUDproject.Reposetries.JobRepository
             return existing;
         }
 
-        // DELETE: Only allow if it belongs to the user
-        public async Task<JobEntity?> DeleteAsync(int id, int userId)
+        public async Task<JobEntity?> DeleteAsync(int id, int userId, int roleId)
         {
-            var existing = await _db.Jobs
-                .FirstOrDefaultAsync(j => j.Id == id && j.CreatedBy == userId);
+
+            if (roleId != (int)UserRole.Admin)
+            {
+                return null; 
+            }
+            var existing = await GetByIdAsync(id, userId, roleId);
 
             if (existing == null) return null;
 
             _db.Jobs.Remove(existing);
             await _db.SaveChangesAsync();
             return existing;
+        }
+       
+        public async Task<IEnumerable<JobEntity>> GetByDateAsync(int userId, DateTime date)
+        {
+            var searchDate = date.Date;
+            
+            return await _db.Jobs
+                .Where(j =>
+                    (j.ShootDate.HasValue && j.ShootDate.Value.Date == searchDate) ||
+                    (j.UserId == userId)
+                )
+                .AsNoTracking() 
+                .ToListAsync();
+        }
+        public async Task<bool> AssignUserAsync(int jobId, int userId)
+        {
+            var job = await _db.Jobs.FindAsync(jobId);
+            if (job == null) return false;
+
+            job.UserId = userId;
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

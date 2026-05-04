@@ -10,6 +10,8 @@ public class AuthService : IAuthService
     private readonly IUserRepository _userRepository;
     private readonly IJwtService _jwtService;
 
+    public object BCrupt { get; private set; }
+
     public AuthService(IUserRepository userRepository, IJwtService jwtService)
     {
         _userRepository = userRepository;
@@ -22,15 +24,19 @@ public class AuthService : IAuthService
         if (exists)
             throw new InvalidOperationException("Email is already registered.");
 
+        string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
         var user = new User
         {
            
             Name     = dto.Name,
             Email    = dto.Email,
-            Password = dto.Password   
+            Password = passwordHash   
         };
 
         var created = await _userRepository.CreateAsync(user);
+
+        await _userRepository.AssignRoleAsync(created.Id, 2);
         var token   = _jwtService.GenerateToken(created);
 
         return new AuthResponseDto
@@ -38,8 +44,8 @@ public class AuthService : IAuthService
            
             Id=created.Id,
             Token=token,
-            message="user aa gyo ho"
-           
+            message= "User registered and role assigned successfully."
+
         };
     }
 
@@ -55,8 +61,7 @@ public class AuthService : IAuthService
         return new AuthResponseDto
         {
             Token = token,
-           
-            
+            message = "Login successful."
         };
     }
 
@@ -86,5 +91,9 @@ public class AuthService : IAuthService
                 CreatedAt = user.CreatedAt
             }
         };
+
+
     }
+
+
 }

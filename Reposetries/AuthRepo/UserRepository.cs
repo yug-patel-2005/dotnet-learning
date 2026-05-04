@@ -1,7 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using CRUDproject.Models;
 using CRUDproject.Models.AuthUser;
+using CRUDproject.Models.UserRoles;
 using CRUDproject.Reposetries.AuthRepo.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRUDproject.Reposetries.AuthRepo;
 
@@ -16,7 +17,10 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByEmailAsync(string email)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return await _context.Users
+            .Include(u => u.UserRoles)      
+                .ThenInclude(ur => ur.Role) 
+            .FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<User> CreateAsync(User user)
@@ -59,11 +63,24 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByIdAsync(int id)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return await _context.Users
+            .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<bool> EmailExistsAsync(string email)
     {
         return await _context.Users.AnyAsync(u => u.Email == email);
+    }
+    public async Task AssignRoleAsync(int userId, int roleId)
+    {
+        var userRole = new UserRole
+        {
+            UserId = userId,
+            RoleId = roleId
+        };
+        _context.UserRoles.Add(userRole);
+        await _context.SaveChangesAsync();
     }
 }

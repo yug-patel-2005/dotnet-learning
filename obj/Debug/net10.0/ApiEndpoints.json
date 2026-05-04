@@ -43,6 +43,27 @@
   },
   {
     "ContainingType": "CRUDproject.Controllers.JobController.JobsController",
+    "Method": "Assign",
+    "RelativePath": "api/job/Assign/{jobId}/{userId}",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "jobId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.JobController.JobsController",
     "Method": "Create",
     "RelativePath": "api/job/Create",
     "HttpMethod": "POST",
@@ -95,6 +116,27 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.JobController.JobsController",
+    "Method": "GetCombinedJobs",
+    "RelativePath": "api/job/GetCombinedJobs",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "date",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "isToday",
+        "Type": "System.Boolean",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -194,6 +236,64 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.UserRole.UserRoleController",
+    "Method": "AssignRole",
+    "RelativePath": "api/UserRole/assign",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "CRUDproject.Dtos.UserRoleDto.AssignRoleDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.UserRole.UserRoleController",
+    "Method": "GetAllUserRoles",
+    "RelativePath": "api/UserRole/GetAllAssigned",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.UserRole.UserRoleController",
+    "Method": "GetUserRoles",
+    "RelativePath": "api/UserRole/GetById{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CRUDproject.Controllers.UserRole.UserRoleController",
+    "Method": "RemoveRole",
+    "RelativePath": "api/UserRole/remove",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "CRUDproject.Dtos.UserRoleDto.AssignRoleDto",
         "IsRequired": true
       }
     ],

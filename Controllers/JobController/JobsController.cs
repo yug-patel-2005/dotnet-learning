@@ -1,8 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using CRUDproject.Dtos.JobDto;
-using System.Security.Claims;
+using CRUDproject.Models.AuthUser;
 using CRUDproject.Services.JobService.Interface;
+using CRUDproject.Enums;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using CRUDproject.Constants;
 
 namespace CRUDproject.Controllers.JobController
 {
@@ -20,6 +23,7 @@ namespace CRUDproject.Controllers.JobController
             _logger = logger;
         }
 
+     
         private int GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -28,20 +32,54 @@ namespace CRUDproject.Controllers.JobController
                 : 0;
         }
 
+      
+        private int GetUserRoleId()
+        {
+          
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            return int.TryParse(roleClaim, out var roleId) ? roleId : 0;
+        }
+
         [HttpGet("GetAllUser")]
         public async Task<IActionResult> GetAll()
         {
             try
             {
-                var userId = GetCurrentUserId(); // Get ID from Token
+                var userId = GetCurrentUserId();
+                var roleId = GetUserRoleId(); 
 
-                // PASS userId to the service
-                var items = await _service.GetAllAsync(userId);
+                var items = await _service.GetAllAsync(userId, roleId);
                 return Ok(items);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error in GetAll");
                 return StatusCode(500, "An error occurred");
+            }
+        }
+
+
+        [Authorize]
+        [HttpGet("GetCombinedJobs")]
+        public async Task<IActionResult> GetCombinedJobs([FromQuery] DateTime? date, [FromQuery] bool isToday = false)
+        {
+            try
+            {
+                // 1. Get current user ID using the helper method
+                var userId = GetCurrentUserId();
+                if (userId == 0) return Unauthorized("Invalid user token.");
+
+                // 2. Pass the raw parameters to the service; let the service decide what 'date' means
+                var jobs = await _service.GetJobsByDateAsync(userId, date, isToday);
+
+                if (jobs == null || !jobs.Any()) return NotFound("No jobs found for today or your account.");
+
+                return Ok(jobs);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetCombinedJobs");
+                return StatusCode(500, "Internal server error");
             }
         }
 
@@ -51,9 +89,9 @@ namespace CRUDproject.Controllers.JobController
             try
             {
                 var userId = GetCurrentUserId();
+                var roleId = GetUserRoleId();
 
-                // PASS userId so user only sees THEIR job
-                var item = await _service.GetByIdAsync(id, userId);
+                var item = await _service.GetByIdAsync(id, userId, roleId);
                 if (item is null) return NotFound("Job not found or access denied.");
 
                 return Ok(item);
@@ -61,16 +99,14 @@ namespace CRUDproject.Controllers.JobController
             catch (Exception) { return StatusCode(500, "Error"); }
         }
 
+        [Authorize(Roles = RoleNames.Admin)] 
         [HttpPost("Create")]
-        // NOTE: Removed [AllowAnonymous] because you need a token to know WHO is creating the job
         public async Task<IActionResult> Create([FromBody] JobDto dto)
         {
             try
             {
-                var userId = GetCurrentUserId();
-
-                // PASS userId so the job gets "Stamped" with the owner
-                var created = await _service.CreateAsync(dto, userId);
+                var adminId = GetCurrentUserId();
+                var created = await _service.CreateAsync(dto, adminId);
 
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
@@ -83,10 +119,10 @@ namespace CRUDproject.Controllers.JobController
             try
             {
                 var userId = GetCurrentUserId();
+                var roleId = GetUserRoleId();
 
-                // PASS userId to ensure only the owner can update
-                var updated = await _service.UpdateAsync(id, dto, userId);
-                if (updated is null) return NotFound("Update failed: Job not found or unauthorized.");
+                var updated = await _service.UpdateAsync(id, dto, userId, roleId);
+                if (updated is null) return NotFound("Update failed: Unauthorized or Not Found.");
 
                 return Ok(updated);
             }
@@ -99,16 +135,31 @@ namespace CRUDproject.Controllers.JobController
             try
             {
                 var userId = GetCurrentUserId();
+                var roleId = GetUserRoleId();
 
-                // PASS userId to ensure only the owner can delete
-                var deleted = await _service.DeleteAsync(id, userId);
-                if (deleted is null) return NotFound("Delete failed: Job not found or unauthorized.");
+                var deleted = await _service.DeleteAsync(id, userId, roleId);
+                if (deleted is null) return Forbid("Only administrators can delete jobs.");
 
                 return NoContent();
             }
             catch (Exception) { return StatusCode(500, "Error"); }
         }
-    
+        [Authorize(Roles = RoleNames.Admin)]
+        [HttpPatch("Assign/{jobId}/{userId}")]
+        public async Task<IActionResult> Assign(int jobId, int userId)
+        {
+            try
+            {
+                var success = await _service.AssignUserAsync(jobId, userId);
+                if (!success) return NotFound("Job not found.");
 
+                return Ok(new { message = "Job assigned successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning job");
+                return StatusCode(500, "Error");
+            }
+        }
     }
 }

@@ -10,7 +10,10 @@ using CRUDproject.Services.AuthService;
 using CRUDproject.Services.AuthService.Interface;
 using CRUDproject.Reposetries.AuthRepo.Interface;
 using CRUDproject.Reposetries.AuthRepo;
-using CRUDproject.Reposetries.JobRepository.Interface;
+using CRUDproject.Reposetries.UserRoleRepo.Interface;
+using CRUDproject.Reposetries.UserRoleRepo;
+using CRUDproject.Services.UserRoleService.Interface;
+using CRUDproject.Services.UserRoleService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -49,6 +54,25 @@ builder.Services.AddAuthentication("Bearer")
             ValidAudience = audience,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+                var result = System.Text.Json.JsonSerializer.Serialize(new { message = "You are not authorized. Please provide a valid token." });
+                return context.Response.WriteAsync(result);
+            },
+            OnForbidden = context =>
+            {
+                context.Response.StatusCode = 403;
+                context.Response.ContentType = "application/json";
+                var result = System.Text.Json.JsonSerializer.Serialize(new { message = "You do not have permission to access this resource." });
+                return context.Response.WriteAsync(result);
+            }
         };
     });
 

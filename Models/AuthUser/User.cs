@@ -1,3 +1,5 @@
+using CRUDproject.Models.UserRoles;
+
 namespace CRUDproject.Models.AuthUser;
 
 public class User
@@ -7,4 +9,6 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

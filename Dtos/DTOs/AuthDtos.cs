@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CRUDproject.Dtos.DTOs;
 
 
@@ -26,7 +28,8 @@ public class UpdateUserDto
 
 public class AuthResponseDto
 {
-    public int Id { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Id { get; set; }
     public string Token { get; set; } = string.Empty;
     public string message { get; set; } = string.Empty;
 

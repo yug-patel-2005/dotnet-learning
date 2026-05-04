@@ -38,7 +38,7 @@ public class UserService : IUserService
         };
     }
 
-    // READ - Get single user by ID
+
     public async Task<UserInfoDto> GetUserByIdAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
@@ -55,7 +55,7 @@ public class UserService : IUserService
         };
     }
 
-    // READ - Get single user by Email
+
     public async Task<UserInfoDto> GetUserByEmailAsync(string email)
     {
         var user = await _userRepository.GetByEmailAsync(email);
@@ -72,7 +72,7 @@ public class UserService : IUserService
         };
     }
 
-    // READ - Get all users
+
     public async Task<IEnumerable<UserInfoDto>> GetAllUsersAsync()
     {
         var users = await _userRepository.GetAllUser();
@@ -86,15 +86,13 @@ public class UserService : IUserService
         }).ToList();
     }
 
-    // UPDATE
+
     public async Task<UserInfoDto> UpdateUserAsync(int id, UpdateUserDto dto)
     {
         var user = await _userRepository.GetByIdAsync(id);
 
         if (user is null)
             throw new KeyNotFoundException($"User with ID {id} not found.");
-
-        // Check if email already exists (excluding current user)
         var existingUserWithEmail = await _userRepository.GetByEmailAsync(dto.Email);
         if (existingUserWithEmail is not null && existingUserWithEmail.Id != id)
             throw new InvalidOperationException("Email is already in use.");
@@ -115,7 +113,6 @@ public class UserService : IUserService
         };
     }
 
-    // DELETE
     public async Task<bool> DeleteUserAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
