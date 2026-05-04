@@ -9,6 +9,7 @@ namespace CRUDproject.Reposetries.JobRepository.Interface
         Task<JobEntity?> GetByIdAsync(int id, int userId, int roleId);
         Task<JobEntity?> UpdateAsync(JobEntity job, int userId, int roleId);
         Task<JobEntity?> DeleteAsync(int id, int userId, int roleId);
-        Task<IEnumerable<JobEntity>> GetByDateAsync(DateTime date);
+        Task<IEnumerable<JobEntity>> GetByDateAsync(int userId, DateTime date);
+        Task<bool> AssignUserAsync(int jobId, int userId);
     }
 }

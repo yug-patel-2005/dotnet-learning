@@ -4,6 +4,8 @@ namespace CRUDproject.Dtos.JobDto
 {
     public class JobDto
     {
+        public int Id { get; set; }
+
         [Required (ErrorMessage = "oyy aa division baki chhe lakh ne ")]
         [StringLength(50,MinimumLength =3)]
         public string? Division { get; set; }
@@ -26,7 +28,6 @@ namespace CRUDproject.Dtos.JobDto
 
         public int CreatedBy { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
     }
 }

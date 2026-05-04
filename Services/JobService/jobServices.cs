@@ -1,9 +1,11 @@
-﻿using CRUDproject.Dtos.JobDto;
+using CRUDproject.Dtos.JobDto;
+using CRUDproject.Enums; // 1. Added the Enums namespace
 using CRUDproject.Models;
+using CRUDproject.Models.AuthUser;
 using CRUDproject.Reposetries.JobRepository.Interface;
 using CRUDproject.Services.JobService.Interface;
-using CRUDproject.Enums; // 1. Added the Enums namespace
 using System.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CRUDproject.Services.JobService
 {
@@ -62,10 +64,37 @@ namespace CRUDproject.Services.JobService
             var targetUserId = (roleId == (int)UserRole.Admin) ? 0 : currentUserId;
             return await _repo.DeleteAsync(id, targetUserId, roleId);
         }
-        public async Task<IEnumerable<JobEntity>> GetJobsByDateAsync(DateTime date)
+        // CRUDproject.Services.JobService/JobService.cs
+        public async Task<IEnumerable<JobDto>> GetJobsByDateAsync(int userId, DateTime? date, bool isToday)
         {
-            return await _repo.GetByDateAsync(date);
+            // 1. Logic to determine the search date (defaults to Today)
+            DateTime searchDate = isToday ? DateTime.Today : (date ?? DateTime.Today);
+
+            // 2. Call Repository to get Entity data
+            var jobs = await _repo.GetByDateAsync(userId, searchDate);
+
+            // 3. Map Entities to DTOs including the Id
+            return jobs.Select(j => new JobDto
+            {
+                Id = j.Id,
+                Division = j.Division,
+                SchoolId = j.SchoolId,
+                PhotographerId = j.PhotographerId,
+                ShootDate = j.ShootDate,
+                EventType = j.EventType,
+                ShootCategory = j.ShootCategory,
+                SaleType = j.SaleType,
+                ShootId = j.ShootId,
+                Status = j.Status,
+                UserId = j.UserId ?? 0
+            }).ToList();
         }
+
+        public async Task<bool> AssignUserAsync(int jobId, int userId)
+        {
+            return await _repo.AssignUserAsync(jobId, userId);
+        }
+
         private JobEntity MapToEntity(JobDto dto)
         {
             return new JobEntity

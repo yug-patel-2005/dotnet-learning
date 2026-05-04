@@ -162,3 +162,4 @@ C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\obj\Debug\net10.0\ref\CRUDpr
 C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\obj\Debug\net10.0\CRUDproject.sourcelink.json
 C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
+C:\Users\yug.p\source\repos\CRUDproject\CRUDproject\bin\Debug\net10.0\BCrypt.Net-Next.dll

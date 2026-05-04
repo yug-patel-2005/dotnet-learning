@@ -11,7 +11,8 @@ namespace CRUDproject.Services.JobService.Interface
         Task<JobEntity?> DeleteAsync(int id, int currentUserId, int roleId);
         Task<JobEntity?> GetByIdAsync(int id, int currentUserId, int roleId);
         Task<IEnumerable<JobEntity>> GetAllAsync(int currentUserId, int roleId);
-        Task<IEnumerable<JobEntity>> GetJobsByDateAsync(DateTime date);
-       
+        // Inside IJobService.cs
+        Task<IEnumerable<JobDto>> GetJobsByDateAsync(int userId, DateTime? date, bool isToday);
+        Task<bool> AssignUserAsync(int jobId, int userId);
     }
 }

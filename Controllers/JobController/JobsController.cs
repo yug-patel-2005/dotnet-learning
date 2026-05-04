@@ -58,24 +58,27 @@ namespace CRUDproject.Controllers.JobController
             }
         }
 
-   
-        [HttpGet("GetByDate")]
-        public async Task<IActionResult> GetByDate([FromQuery] DateTime? date , [FromQuery] bool isToday = false)
+
+        [Authorize]
+        [HttpGet("GetCombinedJobs")]
+        public async Task<IActionResult> GetCombinedJobs([FromQuery] DateTime? date, [FromQuery] bool isToday = false)
         {
             try
             {
-                DateTime searchDate = isToday ? DateTime.Today : (date ?? DateTime.Today);
+                // 1. Get current user ID using the helper method
+                var userId = GetCurrentUserId();
+                if (userId == 0) return Unauthorized("Invalid user token.");
 
-                var jobs = await _service.GetJobsByDateAsync(searchDate);
+                // 2. Pass the raw parameters to the service; let the service decide what 'date' means
+                var jobs = await _service.GetJobsByDateAsync(userId, date, isToday);
 
-                if (jobs == null || !jobs.Any())
-                    return NotFound($"No jobs scheduled for {searchDate.ToShortDateString()}");
+                if (jobs == null || !jobs.Any()) return NotFound("No jobs found for today or your account.");
 
                 return Ok(jobs);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching public jobs by date");
+                _logger.LogError(ex, "Error in GetCombinedJobs");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -140,6 +143,23 @@ namespace CRUDproject.Controllers.JobController
                 return NoContent();
             }
             catch (Exception) { return StatusCode(500, "Error"); }
+        }
+        [Authorize(Roles = RoleNames.Admin)]
+        [HttpPatch("Assign/{jobId}/{userId}")]
+        public async Task<IActionResult> Assign(int jobId, int userId)
+        {
+            try
+            {
+                var success = await _service.AssignUserAsync(jobId, userId);
+                if (!success) return NotFound("Job not found.");
+
+                return Ok(new { message = "Job assigned successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error assigning job");
+                return StatusCode(500, "Error");
+            }
         }
     }
 }

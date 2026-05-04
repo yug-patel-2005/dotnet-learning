@@ -91,7 +91,7 @@
         }
       }
     },
-    "/api/job/GetByDate": {
+    "/api/job/GetCombinedJobs": {
       "get": {
         "tags": [
           "Jobs"
@@ -225,6 +225,38 @@
         "parameters": [
           {
             "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/job/Assign/{jobId}/{userId}": {
+      "patch": {
+        "tags": [
+          "Jobs"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "userId",
             "in": "path",
             "required": true,
             "schema": {
@@ -489,11 +521,14 @@
           "shootCategory",
           "shootDate",
           "shootId",
-          "status",
-          "userId"
+          "status"
         ],
         "type": "object",
         "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
           "division": {
             "maxLength": 50,
             "minLength": 3,
@@ -537,7 +572,8 @@
           },
           "userId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false

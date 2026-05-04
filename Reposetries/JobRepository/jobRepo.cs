@@ -1,4 +1,4 @@
-﻿using CRUDproject.Enums;
+using CRUDproject.Enums;
 using CRUDproject.Models;
 using CRUDproject.Reposetries.JobRepository.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -78,12 +78,27 @@ namespace CRUDproject.Reposetries.JobRepository
             await _db.SaveChangesAsync();
             return existing;
         }
-        public async Task<IEnumerable<JobEntity>> GetByDateAsync(DateTime date)
+       
+        public async Task<IEnumerable<JobEntity>> GetByDateAsync(int userId, DateTime date)
         {
+            var searchDate = date.Date;
+            
             return await _db.Jobs
-        .AsNoTracking()
-        .Where(j => j.ShootDate.HasValue && j.ShootDate.Value.Date == date.Date)
-        .ToListAsync();
+                .Where(j =>
+                    (j.ShootDate.HasValue && j.ShootDate.Value.Date == searchDate) ||
+                    (j.UserId == userId)
+                )
+                .AsNoTracking() 
+                .ToListAsync();
+        }
+        public async Task<bool> AssignUserAsync(int jobId, int userId)
+        {
+            var job = await _db.Jobs.FindAsync(jobId);
+            if (job == null) return false;
+
+            job.UserId = userId;
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }
